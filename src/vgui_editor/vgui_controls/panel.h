@@ -215,7 +215,7 @@ public:
 
 #ifdef SHADER_EDITOR_DLL_SWARM
 	// Mouse Codes...
-	virtual bool HandleMouseCode( MouseCode code ) { return false; }
+	virtual bool HandleMouseCode( MouseCode code ) { return true; }
 #endif
 
 	// messaging
