@@ -213,6 +213,11 @@ public:
 	virtual bool IsAutoDeleteSet();
 	virtual void DeletePanel();				// simply does a  { delete this; }
 
+#ifdef SHADER_EDITOR_DLL_SWARM
+	// Mouse Codes...
+	virtual bool HandleMouseCode( MouseCode code ) { return false; }
+#endif
+
 	// messaging
 	virtual void AddActionSignalTarget(Panel *messageTarget);
 	virtual void AddActionSignalTarget(VPANEL messageTarget);

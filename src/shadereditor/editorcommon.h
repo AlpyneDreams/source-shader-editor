@@ -1250,4 +1250,16 @@ extern CEditorRoot *pEditorRoot;
 #include "cCompileThread.h"
 #include "cThreadManager.h"
 
+#ifdef SHADER_EDITOR_DLL_SWARM
+
+#ifndef min
+#define min( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
+#endif
+
+#ifndef max
+#define max( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#endif
+
+#endif // SHADER_EDITOR_DLL_SWARM
+
 #endif
