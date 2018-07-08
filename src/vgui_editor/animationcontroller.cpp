@@ -27,6 +27,42 @@
 #include <vstdlib/random.h>
 #include <tier0/memdbgon.h>
 
+#ifdef SHADER_EDITOR_DLL_SWARM
+// HACK/TODO: this has been replaced by CExpressionEvaluator
+static bool EvaluateConditional( const char *str )
+{
+	if ( !str )
+		return false;
+
+	if ( *str == '[' )
+		str++;
+
+	bool bNot = false; // should we negate this command?
+	if ( *str == '!' )
+		bNot = true;
+
+	if ( Q_stristr( str, "$X360" ) )
+		return IsX360() ^ bNot;
+	
+	if ( Q_stristr( str, "$WIN32" ) )
+		return IsPC() ^ bNot; // hack hack - for now WIN32 really means IsPC
+
+	if ( Q_stristr( str, "$WINDOWS" ) )
+		return IS_WINDOWS_PC ^ bNot;
+	
+	if ( Q_stristr( str, "$OSX" ) )
+		return IsOSX() ^ bNot;
+	
+	if ( Q_stristr( str, "$LINUX" ) )
+		return IsLinux() ^ bNot;
+
+	if ( Q_stristr( str, "$POSIX" ) )
+		return IsPosix() ^ bNot;
+	
+	return false;
+}
+#endif
+
 using namespace vgui;
 
 static CUtlSymbolTable g_ScriptSymbols(0, 128, true);

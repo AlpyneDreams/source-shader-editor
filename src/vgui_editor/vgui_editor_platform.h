@@ -18,3 +18,12 @@ inline bool V_isalnum(char c) { return isalnum( (unsigned char)c ) != 0; }
 #ifndef clamp
 #define clamp( val, min, max ) ( ((val) > (max)) ? (max) : ( ((val) < (min)) ? (min) : (val) ) )
 #endif
+
+// for SWARM etc
+#ifndef INVALID_LOCALIZE_STRING_INDEX
+#define INVALID_LOCALIZE_STRING_INDEX INVALID_STRING_INDEX
+#endif
+
+#ifndef V_isalnum
+#define V_isalnum isalnum
+#endif

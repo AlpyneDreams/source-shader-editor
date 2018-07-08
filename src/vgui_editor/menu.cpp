@@ -7,6 +7,7 @@
 
 #include "vgui_controls/pch_vgui_controls.h"
 
+#include "tier0/validator.h"
 #include "vgui_editor_platform.h"
 
 // memdbgon must be the last include file in a .cpp file
@@ -1646,12 +1647,13 @@ private:
 // Singleton helper class
 static CMenuManager g_MenuMgr;
 
+
+#ifdef DBGFLAG_VALIDATE
 void ValidateMenuGlobals( CValidator &validator )
 {
-#ifdef DBGFLAG_VALIDATE
 	g_MenuMgr.Validate( validator, "g_MenuMgr" );
-#endif
 }
+#endif
 
 }  // end namespace vgui
 
