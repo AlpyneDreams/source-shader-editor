@@ -559,7 +559,7 @@ void InitSwarmShaders();
 #endif
 
 const char *GetWorkingDirectory();
-const char *GetAccountName();
+//const char *GetAccountName();
 const char *GetGamePath();
 const char *GetBinaryPath();
 const char *GetBinaryPath_Local();

@@ -87,7 +87,12 @@ void CreateDirectoryStrings()
 {
 	DestroyDirectoryStrings();
 
+	/// Path: _wd ///
+
 	char _wdTmp[ MASTERPATH_MAXLEN ];
+	
+	// this block tries to use EXECUTABLE_PATH, which is the game/bin folder, not the game folder
+#ifndef SHADER_EDITOR_DLL_SWARM
 	char szSearchPath[ MASTERPATH_MAXLEN ];
 
 	if ( g_pFullFileSystem->GetSearchPath( "EXECUTABLE_PATH", false, szSearchPath, sizeof( szSearchPath ) ) > 0 )
@@ -95,17 +100,23 @@ void CreateDirectoryStrings()
 		Q_strncpy( _wdTmp, szSearchPath, MASTERPATH_MAXLEN );
 	}
 	else
+#endif
 	{
+#ifndef SHADER_EDITOR_DLL_SWARM
 		*szSearchPath = 0;
+#endif
+		// try GetCurrentDirectory() and getcwd() as a backup
 
 		if ( !g_pFullFileSystem->GetCurrentDirectory( _wdTmp, MASTERPATH_MAXLEN  ) )
 			getcwd( _wdTmp, sizeof( _wdTmp ) );
 	}
 
 	Q_FixSlashes( _wdTmp );
-
 	Q_strncpy( _wd, _wdTmp, MASTERPATH_MAXLEN );
 
+	/// Path: _acc ///
+
+	// check if wd is in steamapps
 	char *sapps = Q_stristr( _wdTmp, "steamapps" );
 
 	if ( sapps )
@@ -118,49 +129,35 @@ void CreateDirectoryStrings()
 	}
 	else
 	{
-		Warning( "Unable to find account name/common\n" );
+		Msg( "[Shader Editor] Running outside of steamapps.\n" );
 		Q_snprintf( _acc, MASTERPATH_MAXLEN, "common" );
 	}
 	
 	//char *smods = Q_stristr( _wdTmp, "SourceMods" );
+
+	/// Path: _gamePath ///
+
 	const char *_game = engine->GetGameDirectory();
 
 	Q_snprintf( _gamePath, MASTERPATH_MAXLEN, "%s", _game );
 	Q_FixSlashes( _gamePath );
-	
-	KeyValues *pKV = new KeyValues("cfg");
-	const char *localize = "..\\..\\..\\..\\";
 
-#ifdef SHADER_EDITOR_DLL_SWARM
-	const char *defCMP = "alien swarm/bin";
-	const char *defCMPKey = "compiler_swarm";
-#elif SHADER_EDITOR_DLL_2006
-	const char *defCMP = "sourcesdk/bin/ep1/bin";
-	const char *defCMPKey = "compiler_2006";
-#elif SHADER_EDITOR_DLL_2013
-	const char *defCMP = "";
-	const char *defCMPKey = "compiler_2013";
-#else
-	const char *defCMP = "sourcesdk/bin/source2007/bin";
-	const char *defCMPKey = "compiler";
-#endif
-
-	const char *_cmp = defCMP;
-	if ( pKV->LoadFromFile( g_pFullFileSystem, "shadereditorui/path_config.txt", "MOD" ) )
-		_cmp = pKV->GetString( defCMPKey, defCMP );
+	/// Path: _compilePath ///
 
 #ifdef SHADER_EDITOR_DLL_2013
 	Q_snprintf( _compilePath, MASTERPATH_MAXLEN, "%s/bin", _wd );
 #else
-	Q_snprintf( _compilePath, MASTERPATH_MAXLEN, "%s%s/%s", _wdTmp, _acc, _cmp );
+	Q_snprintf( _compilePath, MASTERPATH_MAXLEN, "%s/bin", _wd);
 #endif
+
+	/// Path: _compilePath_Local ///
 
 #ifdef SHADER_EDITOR_DLL_2013
 	char szCurrentDir[ MASTERPATH_MAXLEN ];
 	Q_FileBase( _wd, szCurrentDir, MASTERPATH_MAXLEN );
-	Q_snprintf( _compilePath_Local, MASTERPATH_MAXLEN, "%scommon\\%s\\bin", localize, szCurrentDir );
+	Q_snprintf( _compilePath_Local, MASTERPATH_MAXLEN, "..\\..\\..\\..\\common\\%s\\bin", szCurrentDir );
 #else
-	Q_snprintf( _compilePath_Local, MASTERPATH_MAXLEN, "%s%s\\%s", localize, _acc, _cmp );
+	Q_snprintf( _compilePath_Local, MASTERPATH_MAXLEN, "..\\..\\..\\bin" );
 #endif
 
 #ifdef SHADER_EDITOR_DLL_2013
@@ -173,8 +170,8 @@ void CreateDirectoryStrings()
 
 	Q_FixSlashes( _compilePath );
 	Q_FixSlashes( _compilePath_Local );
-	pKV->deleteThis();
 
+	/// Path: Everything Else ///
 	
 	const char *__localrootdir = "shadereditorui";
 	Q_snprintf( _seditRoot, MASTERPATH_MAXLEN, "%s/%s", _gamePath, __localrootdir );
@@ -196,6 +193,8 @@ void CreateDirectoryStrings()
 	Q_snprintf( _uFuncs, MASTERPATH_MAXLEN, "%s/%s", _seditRoot, __localufuncdir );
 	Q_FixSlashes( _uFuncs );
 
+	// TODO: ideally, _swarmShaderDir shouldn't the platform shaders folder
+	// but its currently the only one swarm will load shaders from
 #ifdef SHADER_EDITOR_DLL_SWARM
 	const char *__swarmShaderTarget = "platform/shaders/fxc";
 	Q_snprintf( _swarmShaderDir, MASTERPATH_MAXLEN, "%s/%s", _wd, __swarmShaderTarget );
@@ -210,73 +209,80 @@ void CreateDirectoryStrings()
 
 	if ( shaderEdit->ShouldShowPrimaryDbg() )
 	{
-		Msg( "wd: %s\n", _wd );
+		
+		Msg( "wd:\t\t%s\n", _wd );
+		//Msg( "acc/swarm shader parent name: %s\n", _acc );
 #ifdef SHADER_EDITOR_DLL_SWARM
-		Msg( "swarm parent name: %s\n", _acc );
-		Msg( "swarm shader path: %s\n", _swarmShaderDir );
-#else
-		Msg( "acc: %s\n", _acc );
+		Msg( "shaders:\t%s\n", _swarmShaderDir );
 #endif
-		Msg( "game: %s\n", _gamePath );
-		Msg( "editor root: %s\n", _seditRoot );
-		Msg( "binaries: %s\n", _compilePath );
-		Msg( "binaries local: %s\n", _compilePath_Local );
-		Msg( "canvas: %s\n", _canvasDir );
-		Msg( "funcs: %s\n", _uFuncs );
-		Msg( "src: %s\n", _shaderSource );
+		Msg( "game:\t\t%s\n", _gamePath );
+		Msg( "editor root:\t%s\n", _seditRoot );
+		Msg( "bins:\t\t%s\n", _compilePath );
+		Msg( "bins local:\t%s\n", _compilePath_Local );
+		Msg( "canvas:\t\t%s\n", _canvasDir );
+		Msg( "funcs:\t\t%s\n", _uFuncs );
+		Msg( "src:\t\t%s\n", _shaderSource );
 	}
 }
+
+static void CheckDir(const char* path)
+{
+	if ( !g_pFullFileSystem->IsDirectory( path, "MOD" ) ) {
+
+		Warning( "[Shader Editor] Warning: %s does not exist, creating.\n", path );
+
+		g_pFullFileSystem->CreateDirHierarchy( path, "MOD" );
+	}
+}
+
 void CreateDirectories()
 {
-	if ( !g_pFullFileSystem->IsDirectory( _canvasDir, "MOD" ) )
-		g_pFullFileSystem->CreateDirHierarchy( _canvasDir, "MOD" );
+	CheckDir( _canvasDir );
 
-	if ( !g_pFullFileSystem->IsDirectory( _DumpFiles, "MOD" ) )
-		g_pFullFileSystem->CreateDirHierarchy( _DumpFiles, "MOD" );
-	if ( !g_pFullFileSystem->IsDirectory( _shaderSource, "MOD" ) )
-		g_pFullFileSystem->CreateDirHierarchy( _shaderSource, "MOD" );
+	CheckDir( _DumpFiles );
+	CheckDir( _shaderSource );
 
 	char tmpDir[MASTERPATH_MAXLEN];
 	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders/fxc", _shaderSource );
 	Q_FixSlashes( tmpDir );
-	if ( !g_pFullFileSystem->IsDirectory( tmpDir, "MOD" ) )
-		g_pFullFileSystem->CreateDirHierarchy( tmpDir, "MOD" );
+	CheckDir( tmpDir );
+
 	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders/psh", _shaderSource );
 	Q_FixSlashes( tmpDir );
-	if ( !g_pFullFileSystem->IsDirectory( tmpDir, "MOD" ) )
-		g_pFullFileSystem->CreateDirHierarchy( tmpDir, "MOD" );
+	CheckDir( tmpDir );
+
 	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders/vsh", _shaderSource );
 	Q_FixSlashes( tmpDir );
-	if ( !g_pFullFileSystem->IsDirectory( tmpDir, "MOD" ) )
-		g_pFullFileSystem->CreateDirHierarchy( tmpDir, "MOD" );
-
-
-	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders", _gamePath );
-	Q_FixSlashes( tmpDir );
-	if ( !g_pFullFileSystem->IsDirectory( tmpDir, "MOD" ) )
-		g_pFullFileSystem->CreateDirHierarchy( tmpDir, "MOD" );
-	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders/fxc", _gamePath );
-	Q_FixSlashes( tmpDir );
-	if ( !g_pFullFileSystem->IsDirectory( tmpDir, "MOD" ) )
-		g_pFullFileSystem->CreateDirHierarchy( tmpDir, "MOD" );
-	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders/psh", _gamePath );
-	Q_FixSlashes( tmpDir );
-	if ( !g_pFullFileSystem->IsDirectory( tmpDir, "MOD" ) )
-		g_pFullFileSystem->CreateDirHierarchy( tmpDir, "MOD" );
-	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders/vsh", _gamePath );
-	Q_FixSlashes( tmpDir );
-	if ( !g_pFullFileSystem->IsDirectory( tmpDir, "MOD" ) )
-		g_pFullFileSystem->CreateDirHierarchy( tmpDir, "MOD" );
+	CheckDir( tmpDir );
 
 #ifdef SHADER_EDITOR_DLL_SWARM
-	if ( !g_pFullFileSystem->IsDirectory( _shaderSource ) )
-		g_pFullFileSystem->CreateDirHierarchy( _shaderSource );
+	CheckDir( _shaderSource );
 
 	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/fxc", _shaderSource );
 	Q_FixSlashes( tmpDir );
-	if ( !g_pFullFileSystem->IsDirectory( tmpDir ) )
-		g_pFullFileSystem->CreateDirHierarchy( tmpDir );
+	CheckDir( tmpDir );
+
+#else
+
+	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders", _gamePath );
+	Q_FixSlashes( tmpDir );
+	CheckDir( tmpDir );
+
+	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders/fxc", _gamePath );
+	Q_FixSlashes( tmpDir );
+	CheckDir( tmpDir );
+
+	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders/psh", _gamePath );
+	Q_FixSlashes( tmpDir );
+	CheckDir( tmpDir );
+
+	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders/vsh", _gamePath );
+	Q_FixSlashes( tmpDir );
+	CheckDir( tmpDir );
+
 #endif
+
+
 }
 void DestroyDirectoryStrings()
 {
@@ -285,10 +291,12 @@ const char *GetWorkingDirectory()
 {
 	return _wd;
 }
+/*
 const char *GetAccountName()
 {
 	return _acc;
 }
+*/
 const char *GetGamePath()
 {
 	return _gamePath;
@@ -381,7 +389,7 @@ void ComposeShaderPath_CompiledEngine( GenericShaderData *data, bool bPS, bool b
 {
 	char sname[MASTERPATH_MAXLEN];
 	ComposeShaderName_Compiled( data, bPS, bExtension, sname, sizeof( sname ), bPosOverride );
-#if 0 //def SHADER_EDITOR_DLL_SWARM
+#ifdef SHADER_EDITOR_DLL_SWARM
 	Q_snprintf( out, maxbuf, "%s/%s", GetSwarmShaderDirectory(), sname );
 
 	if ( !bPosOverride )
@@ -469,7 +477,7 @@ void PreviewCleanup()
 	ListFiles( tmp, hFiles, NULL, &CheckPreviewMask );
 	Q_snprintf( tmp, sizeof( tmp ), "%s\\shaders\\fxc", GetGamePath() );
 	ListFiles( tmp, hFiles, NULL, &CheckPreviewMask );
-#if 0 //def SHADER_EDITOR_DLL_SWARM
+#ifdef SHADER_EDITOR_DLL_SWARM
 	Q_snprintf( tmp, sizeof( tmp ), "%s", GetSwarmShaderDirectory() );
 	ListFiles( tmp, hFiles, NULL, &CheckPreviewMask );
 #endif
