@@ -193,11 +193,9 @@ void CreateDirectoryStrings()
 	Q_snprintf( _uFuncs, MASTERPATH_MAXLEN, "%s/%s", _seditRoot, __localufuncdir );
 	Q_FixSlashes( _uFuncs );
 
-	// TODO: ideally, _swarmShaderDir shouldn't the platform shaders folder
-	// but its currently the only one swarm will load shaders from
 #ifdef SHADER_EDITOR_DLL_SWARM
-	const char *__swarmShaderTarget = "platform/shaders/fxc";
-	Q_snprintf( _swarmShaderDir, MASTERPATH_MAXLEN, "%s/%s", _wd, __swarmShaderTarget );
+	const char *__swarmShaderTarget = "shaders/fxc";
+	Q_snprintf( _swarmShaderDir, MASTERPATH_MAXLEN, "%s/%s", _gamePath, __swarmShaderTarget );
 	Q_FixSlashes( _swarmShaderDir );
 #endif
 
@@ -238,9 +236,10 @@ static void CheckDir(const char* path)
 void CreateDirectories()
 {
 	CheckDir( _canvasDir );
-
 	CheckDir( _DumpFiles );
 	CheckDir( _shaderSource );
+
+    // create directories for .vcs output in shader_src/shaders/...
 
 	char tmpDir[MASTERPATH_MAXLEN];
 	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/shaders/fxc", _shaderSource );
@@ -256,11 +255,8 @@ void CreateDirectories()
 	CheckDir( tmpDir );
 
 #ifdef SHADER_EDITOR_DLL_SWARM
-	CheckDir( _shaderSource );
 
-	Q_snprintf( tmpDir, sizeof( tmpDir ), "%s/fxc", _shaderSource );
-	Q_FixSlashes( tmpDir );
-	CheckDir( tmpDir );
+	CheckDir( _swarmShaderDir );
 
 #else
 
