@@ -31,6 +31,8 @@ ConVar sedit_prev_HOMFun( "shaderEditor_3dpreview_HOMFun", "0" );
 ConVar sedit_screenshot_zoom( "shaderEditor_screenshot_zoom", "2" );
 ConVar sedit_screenshot_quali( "shaderEditor_screenshot_quality", "100" );
 
+ConVar sedit_code_show_spaces( "shaderEditor_code_show_spaces", "0" );
+
 using namespace vgui;
 
 #define BOUNDS_EXTRUDE 30

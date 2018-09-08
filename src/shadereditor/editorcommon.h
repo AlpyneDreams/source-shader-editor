@@ -164,6 +164,8 @@ extern ConVar sedit_mesh_subdiv;
 extern ConVar sedit_screenshot_zoom;
 extern ConVar sedit_screenshot_quali;
 
+extern ConVar sedit_code_show_spaces;
+
 const char *GetCanvasVersion_KeyName();
 const char *GetCanvasVersion( int i );
 const char *GetCanvasVersion_Current();

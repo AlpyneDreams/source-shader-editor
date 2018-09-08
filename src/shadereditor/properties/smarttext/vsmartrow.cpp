@@ -353,16 +353,22 @@ void _smartRow::DrawRow( const int &x, int &y,
 		{
 			if ( ch == ' ' )
 			{
-				surface()->DrawSetTextColor( ST_COL_SPACING );
-				surface()->DrawUnicodeChar( L'\x00B7' );
+				if ( sedit_code_show_spaces.GetBool() )
+				{
+					surface()->DrawSetTextColor( ST_COL_SPACING );
+					surface()->DrawUnicodeChar( L'\x00B7' ); // U+00B7 MIDDLE DOT
+				}
 			}
 			else if ( ch == 9 )
 			{
-				int ico_tall = (int)(c_t*0.42f); // 42!
-				int ico_spacing = ( c_t - ico_tall ) / 2;
-				surface()->DrawSetTexture( m_iTex_Arrow );
-				surface()->DrawSetColor( ST_COL_SPACING );
-				surface()->DrawTexturedRect( cur_x + x, y + ico_spacing, cur_x + x + ico_tall * 2, y + ico_spacing + ico_tall );
+				if ( sedit_code_show_spaces.GetBool() )
+				{
+					int ico_tall = (int)(c_t*0.42f); // 42!
+					int ico_spacing = ( c_t - ico_tall ) / 2;
+					surface()->DrawSetTexture( m_iTex_Arrow );
+					surface()->DrawSetColor( ST_COL_SPACING );
+					surface()->DrawTexturedRect( cur_x + x, y + ico_spacing, cur_x + x + ico_tall * 2, y + ico_spacing + ico_tall );
+				}
 			}
 			else if ( ch != 0 )
 			{
