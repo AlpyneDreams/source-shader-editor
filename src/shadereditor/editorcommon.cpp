@@ -2058,6 +2058,7 @@ void CleanupString( const char *pSrc, char *pOut, int maxLength, bool AllowSpace
 	pOut[slotWrite] = '\0';
 }
 
+// TODO: this just unrefs and deletes the material normally now
 void ForceDeleteMaterial( IMaterial **pMat )
 {
 	if ( !GetMatSysShutdownHelper()->IsShuttingDown() )
@@ -2086,8 +2087,9 @@ void ForceDeleteMaterial( IMaterial **pMat )
 		{
 			//Assert( 0 );
 
+			// UNDONE: because this just puts the refcount into negative numbers causing spew on destruction
 			// yuck. shoot me now.
-			for (int i = 0; i < 99; i++ )
+			//for (int i = 0; i < 99; i++ )
 #ifdef SHADER_EDITOR_DLL_2006
 				(*pMat)->DecrementReferenceCount();
 #else
