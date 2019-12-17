@@ -4,7 +4,8 @@
 
 CNodePP_Base::CNodePP_Base( const char *opName, CNodeView *p ) : BaseClass( opName, p )
 {
-	SetupVguiTex( m_iPreviewMaterial, "shadereditor/_rt_ppe" );
+	if ( IsInEditMode() )
+		SetupVguiTex( m_iPreviewMaterial, "shadereditor/_rt_ppe" );
 }
 CNodePP_Base::~CNodePP_Base()
 {

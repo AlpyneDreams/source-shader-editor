@@ -30,7 +30,8 @@ CRenderPanel::CRenderPanel( Panel *parent, const char *pElementName ) : BaseClas
 
 	m_iRendermode = 0;
 	
-	SetupVguiTex( m_iVguitex_pp0, "shadereditor/_rtdebug_pp0" );
+	if ( IsInEditMode() )
+		SetupVguiTex( m_iVguitex_pp0, "shadereditor/_rtdebug_pp0" );
 	SetupVguiTex( m_iVguitex_postprocPrev, "shadereditor/_rt_framebuffer_prev" );
 }
 CRenderPanel::~CRenderPanel()

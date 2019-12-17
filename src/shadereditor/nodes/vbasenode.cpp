@@ -47,8 +47,8 @@ CBaseNode::CBaseNode( const char *opName, CNodeView *p )
 		pNodeView->OnHierachyChanged();
 
 	m_iUniqueIndexCount++;
-
-	SetupVguiTex( m_iPreviewMaterial, "shadereditor/_rtdebug_pp0" );
+	if ( IsInEditMode() )
+		SetupVguiTex( m_iPreviewMaterial, "shadereditor/_rtdebug_pp0" );
 	SetName( opName );
 }
 
