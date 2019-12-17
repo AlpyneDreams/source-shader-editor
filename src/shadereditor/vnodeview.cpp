@@ -792,9 +792,6 @@ void CNodeView::UpdateRTs()
 	pRenderContext->ClearColor4ub( 0, 0, 0, 255 );
 	pRenderContext->PushRenderTargetAndViewport( GetPingPongRT(0) );
 	pRenderContext->ClearBuffers( true, false );
-#ifndef SHADER_EDITOR_DLL_2006
-	pRenderContext.SafeRelease();
-#endif
 
 	Frustum tmp;
 #ifdef SHADER_EDITOR_DLL_2006
@@ -802,6 +799,11 @@ void CNodeView::UpdateRTs()
 #else
 	render->Push3DView( setup, 0, GetPingPongRT( 0 ), tmp );
 #endif
+
+#ifndef SHADER_EDITOR_DLL_2006
+	pRenderContext.SafeRelease();
+#endif
+
 	//pRenderContext->PushRenderTargetAndViewport( GetPingPongRT( 0 ) );
 
 	gShaderEditorSystem->UpdateConstants( &setup );
